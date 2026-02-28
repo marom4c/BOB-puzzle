@@ -1,0 +1,5 @@
+{
+  "name": "Posuvné puzzle",
+  "description": "Klasická logická hra, kde posouváním kostiček skládáte původní obrázek.",
+  "requestFramePermissions": []
+}
