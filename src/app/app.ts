@@ -11,10 +11,33 @@ import { CommonModule } from '@angular/common';
         
         @if (gameState() === 'selection') {
           <div class="flex justify-center mb-6">
-            <!-- Dočasné logo, než uživatel dodá veřejný odkaz -->
+            <!-- Logo BO! -->
             <img src="logo.png" alt="BO! Logo" class="h-12 object-contain rounded">
           </div>
-          <h1 class="text-2xl font-extrabold text-center mb-6 text-slate-800 tracking-tight">Vyberte si obrázek k sestavení</h1>
+          
+          <h1 class="text-xl font-extrabold text-center mb-4 text-slate-800 tracking-tight">1. Vyberte obtížnost</h1>
+          <div class="flex justify-center gap-3 mb-8">
+            <button 
+              (click)="difficulty.set('3x3')"
+              [class.bg-indigo-600]="difficulty() === '3x3'"
+              [class.text-white]="difficulty() === '3x3'"
+              [class.bg-slate-100]="difficulty() !== '3x3'"
+              [class.text-slate-600]="difficulty() !== '3x3'"
+              class="flex-1 py-3 rounded-xl font-bold transition-all shadow-sm hover:shadow-md">
+              3x3 (Lehké)
+            </button>
+            <button 
+              (click)="difficulty.set('4x4')"
+              [class.bg-indigo-600]="difficulty() === '4x4'"
+              [class.text-white]="difficulty() === '4x4'"
+              [class.bg-slate-100]="difficulty() !== '4x4'"
+              [class.text-slate-600]="difficulty() !== '4x4'"
+              class="flex-1 py-3 rounded-xl font-bold transition-all shadow-sm hover:shadow-md">
+              4x4 (Těžké)
+            </button>
+          </div>
+
+          <h1 class="text-xl font-extrabold text-center mb-4 text-slate-800 tracking-tight">2. Vyberte obrázek</h1>
           
           <div class="grid grid-cols-2 gap-4">
             @for (img of availableImages; track img) {
@@ -60,16 +83,21 @@ import { CommonModule } from '@angular/common';
             </button>
           </div>
 
-          <!-- Herní plocha 4x5 (poměr 4:5) -->
-          <div class="relative w-full bg-slate-200 rounded-2xl overflow-hidden shadow-inner border-4 border-slate-200 mb-6 touch-none" style="aspect-ratio: 4 / 5;">
+          <!-- Herní plocha -->
+          <div class="relative w-full bg-slate-200 rounded-2xl overflow-hidden shadow-inner border-4 border-slate-200 mb-6 touch-none" 
+               [style.aspect-ratio]="difficulty() === '4x4' ? '4 / 5' : '3 / 4'">
             
             <!-- Dekorativní levá horní část (logo BO!) -->
-            <div class="absolute top-0 left-0 w-[75%] h-[20%] bg-white flex items-center justify-center border-b-2 border-r-2 border-slate-300/50 z-0 p-3">
+            <div class="absolute top-0 left-0 bg-white flex items-center justify-center border-b-2 border-r-2 border-slate-300/50 z-0 p-3"
+                 [style.width]="difficulty() === '4x4' ? '75%' : '66.666%'"
+                 [style.height]="(100 / gridRows) + '%'">
               <img src="logo.png" alt="BO! Logo" class="max-h-full max-w-full object-contain opacity-90 rounded">
             </div>
             
             <!-- Naznačení odkládacího políčka vpravo nahoře -->
-            <div class="absolute top-0 right-0 w-[25%] h-[20%] p-1 z-0">
+            <div class="absolute top-0 right-0 p-1 z-0"
+                 [style.width]="difficulty() === '4x4' ? '25%' : '33.333%'"
+                 [style.height]="(100 / gridRows) + '%'">
               <div class="w-full h-full rounded-lg border-2 border-dashed border-slate-400/40 flex flex-col items-center justify-center bg-slate-100/50">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
@@ -90,7 +118,7 @@ import { CommonModule } from '@angular/common';
                 <div 
                   class="w-full h-full rounded-lg shadow-sm border border-black/10 bg-white"
                   [style.background-image]="tile.isEmpty ? 'none' : 'url(' + imageUrl() + ')'"
-                  [style.background-size]="'400% 400%'"
+                  [style.background-size]="difficulty() === '4x4' ? '400% 400%' : '300% 300%'"
                   [style.background-position]="getBackgroundPosition(tile.id)"
                 ></div>
               </div>
@@ -119,6 +147,7 @@ import { CommonModule } from '@angular/common';
 })
 export class App {
   gameState = signal<'selection' | 'playing'>('selection');
+  difficulty = signal<'3x3' | '4x4'>('4x4');
   
   // Dočasné funkční obrázky, než uživatel dodá veřejné odkazy
   availableImages = [
@@ -130,10 +159,20 @@ export class App {
   
   imageUrl = signal<string>('');
   
-  gridCols = 4;
-  gridRows = 5;
-  // Validní indexy pro pohyb (3 je odkládací políčko vpravo nahoře, 4-19 je hlavní obrázek 4x4)
-  validIndices = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
+  get gridCols() { return this.difficulty() === '4x4' ? 4 : 3; }
+  get gridRows() { return this.difficulty() === '4x4' ? 5 : 4; }
+  get storageIndex() { return this.gridCols - 1; }
+  get numTiles() { return this.gridCols * this.gridCols; }
+  
+  get validIndices() {
+    const indices = [this.storageIndex];
+    const startIdx = this.gridCols;
+    const endIdx = this.gridCols + this.numTiles - 1;
+    for (let i = startIdx; i <= endIdx; i++) {
+      indices.push(i);
+    }
+    return indices;
+  }
   
   tiles = signal<{id: number, index: number, isEmpty: boolean}[]>([]);
   moves = signal(0);
@@ -143,8 +182,8 @@ export class App {
     const currentTiles = this.tiles();
     if (currentTiles.length === 0) return false;
     
-    // Zkontrolujeme, zda jsou všechny obrázkové dílky (id 0-15) na svých původních místech (index 4-19)
-    return currentTiles.every(tile => tile.isEmpty || tile.index === tile.id + 4);
+    const offset = this.gridCols;
+    return currentTiles.every(tile => tile.isEmpty || tile.index === tile.id + offset);
   });
 
   selectImage(img: string) {
@@ -163,20 +202,20 @@ export class App {
 
   initPuzzle() {
     const newTiles = [];
+    const num = this.numTiles;
+    const offset = this.gridCols;
     
-    // Vytvoříme 16 dílků obrázku (id 0-15), které umístíme na indexy 4-19 (řádky 1-4)
-    for (let i = 0; i < 16; i++) {
+    for (let i = 0; i < num; i++) {
       newTiles.push({
         id: i,
-        index: i + 4,
+        index: i + offset,
         isEmpty: false
       });
     }
     
-    // Vytvoříme 1 prázdné odkládací políčko na indexu 3 (řádek 0, sloupec 3 - vpravo nahoře)
     newTiles.push({
-      id: 16,
-      index: 3,
+      id: num,
+      index: this.storageIndex,
       isEmpty: true
     });
 
@@ -189,21 +228,21 @@ export class App {
     const col = index % this.gridCols;
     const row = Math.floor(index / this.gridCols);
     return {
-      width: '25%', // 100% / 4 sloupce
-      height: '20%', // 100% / 5 řádků
-      left: `${col * 25}%`,
-      top: `${row * 20}%`
+      width: `${100 / this.gridCols}%`,
+      height: `${100 / this.gridRows}%`,
+      left: `${col * (100 / this.gridCols)}%`,
+      top: `${row * (100 / this.gridRows)}%`
     };
   }
 
   getBackgroundPosition(id: number): string {
-    if (id === 16) return '0% 0%'; // Prázdné políčko
+    if (id === this.numTiles) return '0% 0%'; // Prázdné políčko
     
-    // id 0-15 tvoří mřížku 4x4
-    const col = id % 4;
-    const row = Math.floor(id / 4);
-    const x = (col / 3) * 100;
-    const y = (row / 3) * 100;
+    const cols = this.gridCols;
+    const col = id % cols;
+    const row = Math.floor(id / cols);
+    const x = (col / (cols - 1)) * 100;
+    const y = (row / (cols - 1)) * 100;
     return `${x}% ${y}%`;
   }
 
@@ -230,14 +269,14 @@ export class App {
       emptyIndex = nextIndex;
     }
     
-    // Po zamíchání zajistíme, aby prázdné políčko skončilo zpět v odkládacím prostoru (index 3)
-    // Tím zajistíme, že herní plocha 4x4 bude plná zamíchaných dílků
-    while (emptyIndex !== 3) {
+    // Po zamíchání zajistíme, aby prázdné políčko skončilo zpět v odkládacím prostoru
+    const storage = this.storageIndex;
+    while (emptyIndex !== storage) {
       let nextIndex = -1;
       const col = emptyIndex % this.gridCols;
       const row = Math.floor(emptyIndex / this.gridCols);
       
-      if (col < 3) {
+      if (col < this.gridCols - 1) {
         nextIndex = emptyIndex + 1; // Posun prázdného místa doprava
       } else if (row > 0) {
         nextIndex = emptyIndex - this.gridCols; // Posun prázdného místa nahoru
@@ -267,10 +306,11 @@ export class App {
     const left = index - 1;
     const right = index + 1;
 
-    if (this.validIndices.includes(up)) neighbors.push(up);
-    if (this.validIndices.includes(down)) neighbors.push(down);
-    if (col > 0 && this.validIndices.includes(left)) neighbors.push(left);
-    if (col < this.gridCols - 1 && this.validIndices.includes(right)) neighbors.push(right);
+    const valid = this.validIndices;
+    if (valid.includes(up)) neighbors.push(up);
+    if (valid.includes(down)) neighbors.push(down);
+    if (col > 0 && valid.includes(left)) neighbors.push(left);
+    if (col < this.gridCols - 1 && valid.includes(right)) neighbors.push(right);
 
     return neighbors;
   }
