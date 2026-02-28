@@ -19,7 +19,7 @@ import { CommonModule } from '@angular/common';
           <div class="flex justify-center gap-3 mb-8">
             <button 
               (click)="difficulty.set('3x3')"
-              [class.bg-indigo-600]="difficulty() === '3x3'"
+              [class.bg-[#5496FF]]="difficulty() === '3x3'"
               [class.text-white]="difficulty() === '3x3'"
               [class.bg-slate-100]="difficulty() !== '3x3'"
               [class.text-slate-600]="difficulty() !== '3x3'"
@@ -28,7 +28,7 @@ import { CommonModule } from '@angular/common';
             </button>
             <button 
               (click)="difficulty.set('4x4')"
-              [class.bg-indigo-600]="difficulty() === '4x4'"
+              [class.bg-[#5496FF]]="difficulty() === '4x4'"
               [class.text-white]="difficulty() === '4x4'"
               [class.bg-slate-100]="difficulty() !== '4x4'"
               [class.text-slate-600]="difficulty() !== '4x4'"
@@ -43,7 +43,7 @@ import { CommonModule } from '@angular/common';
             @for (img of availableImages; track img) {
               <button 
                 (click)="selectImage(img)" 
-                class="rounded-2xl overflow-hidden border-4 border-transparent hover:border-indigo-500 transition-all shadow-sm hover:shadow-md hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-500/50">
+                class="rounded-2xl overflow-hidden border-4 border-transparent hover:border-[#FF63DE] transition-all shadow-sm hover:shadow-md hover:scale-105 focus:outline-none focus:ring-4 focus:ring-[#FF63DE]/50">
                 <img [src]="img" class="w-full aspect-square object-cover" referrerpolicy="no-referrer">
               </button>
             }
@@ -52,7 +52,7 @@ import { CommonModule } from '@angular/common';
           <div class="flex items-center justify-between mb-6">
             <button 
               (click)="backToSelection()"
-              class="text-slate-500 hover:text-indigo-600 transition-colors flex items-center gap-1 font-medium text-sm">
+              class="text-slate-500 hover:text-[#8739E5] transition-colors flex items-center gap-1 font-medium text-sm">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
               </svg>
@@ -65,7 +65,7 @@ import { CommonModule } from '@angular/common';
           <div class="flex justify-between items-center mb-6 bg-slate-50 p-3 rounded-2xl border border-slate-100">
             <div class="flex flex-col items-center justify-center bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-100 min-w-[80px]">
               <span class="text-xs text-slate-500 font-bold uppercase tracking-wider mb-0.5">Tahy</span>
-              <span class="text-xl text-indigo-600 font-black leading-none">{{ moves() }}</span>
+              <span class="text-xl text-[#8739E5] font-black leading-none">{{ moves() }}</span>
             </div>
             
             <div class="flex flex-col items-center">
@@ -75,7 +75,7 @@ import { CommonModule } from '@angular/common';
 
             <button 
               (click)="shuffle()"
-              class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg active:scale-95 flex flex-col items-center justify-center min-w-[80px]">
+              class="bg-[#5496FF] hover:bg-[#8739E5] text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg active:scale-95 flex flex-col items-center justify-center min-w-[80px]">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
@@ -127,16 +127,16 @@ import { CommonModule } from '@angular/common';
             @if (isSolved() && hasStarted()) {
               <div class="absolute inset-0 bg-white/40 backdrop-blur-sm flex flex-col items-center justify-center z-20 animate-in fade-in duration-500 rounded-xl p-4 text-center">
                 <div class="bg-white/80 p-6 rounded-3xl shadow-xl border border-white/50 backdrop-blur-md w-full max-w-[90%]">
-                  <h2 class="text-3xl sm:text-4xl font-black text-emerald-600 mb-2 drop-shadow-sm">BOmba práce!</h2>
-                  <h3 class="text-xl sm:text-2xl font-bold text-slate-800 mb-4">Gratulujeme BOrče!</h3>
+                  <h2 class="text-3xl sm:text-4xl font-black text-[#FF63DE] mb-2 drop-shadow-sm">BOmba práce!</h2>
+                  <h3 class="text-xl sm:text-2xl font-bold text-[#000000] mb-4">Gratulujeme BOrče!</h3>
                   <p class="text-lg font-medium text-slate-700 mb-6 inline-block bg-white/60 px-4 py-1.5 rounded-full border border-slate-200">
-                    Složeno na <span class="font-bold text-indigo-600">{{ moves() }}</span> tahů
+                    Složeno na <span class="font-bold text-[#8739E5]">{{ moves() }}</span> tahů
                   </p>
                   
                   <div class="flex flex-col gap-3 w-full">
                     <button 
                       (click)="shareResult()"
-                      class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-2xl transition-transform hover:scale-105 shadow-lg flex items-center justify-center gap-2">
+                      class="bg-[#8739E5] hover:bg-[#FF63DE] text-white font-bold py-3 px-6 rounded-2xl transition-transform hover:scale-105 shadow-lg flex items-center justify-center gap-2">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                       </svg>
@@ -144,7 +144,7 @@ import { CommonModule } from '@angular/common';
                     </button>
                     <button 
                       (click)="backToSelection()"
-                      class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-6 rounded-2xl transition-transform hover:scale-105 shadow-md">
+                      class="bg-[#5496FF] hover:bg-[#00D3FF] text-white font-bold py-3 px-6 rounded-2xl transition-transform hover:scale-105 shadow-md">
                       Vybrat další obrázek
                     </button>
                   </div>
@@ -406,15 +406,15 @@ export class App {
       // Vykreslíme texty
       ctx.textAlign = 'center';
       
-      ctx.fillStyle = '#059669'; // emerald-600
+      ctx.fillStyle = '#FF63DE'; // Růžová
       ctx.font = 'bold 70px sans-serif';
       ctx.fillText('BOmba práce!', canvas.width / 2, canvas.height / 2 - 60);
       
-      ctx.fillStyle = '#1e293b'; // slate-800
+      ctx.fillStyle = '#000000'; // Černá
       ctx.font = 'bold 50px sans-serif';
       ctx.fillText('Gratulujeme BOrče!', canvas.width / 2, canvas.height / 2 + 10);
       
-      ctx.fillStyle = '#4f46e5'; // indigo-600
+      ctx.fillStyle = '#8739E5'; // Fialová
       ctx.font = 'bold 40px sans-serif';
       ctx.fillText(`Složeno na ${this.moves()} tahů`, canvas.width / 2, canvas.height / 2 + 90);
 
