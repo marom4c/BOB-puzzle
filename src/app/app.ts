@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common';
         @if (gameState() === 'selection') {
           <div class="flex justify-center mb-6">
             <!-- Dočasné logo, než uživatel dodá veřejný odkaz -->
-            <img src="https://placehold.co/300x100/00a0e3/ffffff?text=BO!+Reality+%26+Finance" alt="BO! Logo" class="h-12 object-contain rounded">
+            <img src="logo.png" alt="BO! Logo" class="h-12 object-contain rounded">
           </div>
           <h1 class="text-2xl font-extrabold text-center mb-6 text-slate-800 tracking-tight">Vyberte si obrázek k sestavení</h1>
           
@@ -122,10 +122,10 @@ export class App {
   
   // Dočasné funkční obrázky, než uživatel dodá veřejné odkazy
   availableImages = [
-    'https://picsum.photos/seed/puzzle1/800/800',
-    'https://picsum.photos/seed/puzzle2/800/800',
-    'https://picsum.photos/seed/puzzle3/800/800',
-    'https://picsum.photos/seed/puzzle4/800/800'
+    'bob1.png',
+    'bob2.png',
+    'bob3.png',
+    'bob4.png'
   ];
   
   imageUrl = signal<string>('');
