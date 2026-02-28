@@ -8,102 +8,132 @@ import { CommonModule } from '@angular/common';
   template: `
     <div class="min-h-screen bg-slate-50 flex flex-col items-center py-8 px-4 font-sans text-slate-800">
       <div class="max-w-md w-full bg-white rounded-3xl shadow-xl p-6 border border-slate-100">
-        <h1 class="text-3xl font-extrabold text-center mb-6 text-slate-800 tracking-tight">Posuvné puzzle</h1>
         
-        <div class="mb-6 w-full flex justify-center">
-          <label class="cursor-pointer bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium py-2.5 px-5 rounded-xl shadow-sm transition-all flex items-center gap-2 w-full justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-            </svg>
-            Nahrát vlastní obrázek
-            <input type="file" class="hidden" accept="image/*" (change)="onImageUpload($event)">
-          </label>
-        </div>
-
-        <div class="flex justify-between items-center mb-6">
-          <div class="text-lg font-semibold bg-slate-100 px-4 py-2 rounded-xl text-slate-700">
-            Tahy: <span class="text-indigo-600 font-bold">{{ moves() }}</span>
+        @if (gameState() === 'selection') {
+          <div class="flex justify-center mb-6">
+            <!-- Dočasné logo, než uživatel dodá veřejný odkaz -->
+            <img src="https://placehold.co/300x100/00a0e3/ffffff?text=BO!+Reality+%26+Finance" alt="BO! Logo" class="h-12 object-contain rounded">
           </div>
-          <button 
-            (click)="shuffle()"
-            class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-6 rounded-xl transition-all shadow-md hover:shadow-lg active:scale-95">
-            Zamíchat
-          </button>
-        </div>
-
-        <!-- Herní plocha 4x5 (poměr 4:5) -->
-        <div class="relative w-full bg-slate-200 rounded-2xl overflow-hidden shadow-inner border-4 border-slate-200 mb-6 touch-none" style="aspect-ratio: 4 / 5;">
+          <h1 class="text-2xl font-extrabold text-center mb-6 text-slate-800 tracking-tight">Vyberte si obrázek k sestavení</h1>
           
-          <!-- Dekorativní levá horní část (místo pro logo/text jako u fyzické hračky) -->
-          <div class="absolute top-0 left-0 w-[75%] h-[20%] bg-slate-200 flex items-center justify-center border-b-2 border-r-2 border-slate-300/50 z-0">
-            <div class="flex flex-col items-center opacity-60">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mb-1 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
-              </svg>
-              <span class="text-lg font-black tracking-widest text-slate-600">PUZZLE</span>
-            </div>
-          </div>
-          
-          <!-- Naznačení odkládacího políčka vpravo nahoře -->
-          <div class="absolute top-0 right-0 w-[25%] h-[20%] p-1 z-0">
-            <div class="w-full h-full rounded-lg border-2 border-dashed border-slate-400/40 flex flex-col items-center justify-center bg-slate-100/50">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-              </svg>
-              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Odložit</span>
-            </div>
-          </div>
-
-          <!-- Samotné kostičky -->
-          @for (tile of tiles(); track tile.id) {
-            <div 
-              class="absolute p-0.5 transition-all duration-200 ease-in-out cursor-pointer"
-              [ngStyle]="getTileStyle(tile.index)"
-              [class.invisible]="tile.isEmpty"
-              [class.z-10]="!tile.isEmpty"
-              (click)="moveTile(tile.index)"
-            >
-              <div 
-                class="w-full h-full rounded-lg shadow-sm border border-black/10 bg-white"
-                [style.background-image]="tile.isEmpty ? 'none' : 'url(' + imageUrl + ')'"
-                [style.background-size]="'400% 400%'"
-                [style.background-position]="getBackgroundPosition(tile.id)"
-              ></div>
-            </div>
-          }
-          
-          @if (isSolved() && hasStarted()) {
-            <div class="absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center z-20 animate-in fade-in duration-500 rounded-xl">
-              <h2 class="text-4xl font-black text-emerald-500 mb-2 drop-shadow-sm">Výborně!</h2>
-              <p class="text-lg font-medium text-slate-700 mb-6">Složeno na <span class="font-bold">{{ moves() }}</span> tahů</p>
+          <div class="grid grid-cols-2 gap-4">
+            @for (img of availableImages; track img) {
               <button 
-                (click)="shuffle()"
-                class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-8 rounded-full transition-transform hover:scale-105 shadow-lg">
-                Hrát znovu
+                (click)="selectImage(img)" 
+                class="rounded-2xl overflow-hidden border-4 border-transparent hover:border-indigo-500 transition-all shadow-sm hover:shadow-md hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-500/50">
+                <img [src]="img" class="w-full aspect-square object-cover" referrerpolicy="no-referrer">
               </button>
-            </div>
-          }
-        </div>
+            }
+          </div>
+        } @else {
+          <div class="flex items-center justify-between mb-6">
+            <button 
+              (click)="backToSelection()"
+              class="text-slate-500 hover:text-indigo-600 transition-colors flex items-center gap-1 font-medium text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+              </svg>
+              Zpět
+            </button>
+            <h1 class="text-2xl font-extrabold text-slate-800 tracking-tight">Posuvné puzzle</h1>
+            <div class="w-16"></div> <!-- Spacer for centering -->
+          </div>
 
-        <div class="flex flex-col items-center bg-slate-50 p-4 rounded-2xl">
-          <p class="text-sm text-slate-500 mb-3 font-semibold uppercase tracking-wider">Původní obrázek</p>
-          <img [src]="imageUrl" alt="Předloha" referrerpolicy="no-referrer" class="w-32 h-32 object-cover rounded-xl shadow-md border-2 border-white">
-        </div>
-        
-        <div class="mt-6 text-center text-sm text-slate-400">
-          <p>K ovládání můžete použít dotyk, myš nebo šipky na klávesnici.</p>
-        </div>
+          <div class="flex justify-between items-center mb-6 bg-slate-50 p-3 rounded-2xl border border-slate-100">
+            <div class="flex flex-col items-center justify-center bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-100 min-w-[80px]">
+              <span class="text-xs text-slate-500 font-bold uppercase tracking-wider mb-0.5">Tahy</span>
+              <span class="text-xl text-indigo-600 font-black leading-none">{{ moves() }}</span>
+            </div>
+            
+            <div class="flex flex-col items-center">
+              <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Předloha</span>
+              <img [src]="imageUrl()" class="w-14 h-14 object-cover rounded-lg shadow-sm border-2 border-white" referrerpolicy="no-referrer">
+            </div>
+
+            <button 
+              (click)="shuffle()"
+              class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg active:scale-95 flex flex-col items-center justify-center min-w-[80px]">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span class="text-xs">Zamíchat</span>
+            </button>
+          </div>
+
+          <!-- Herní plocha 4x5 (poměr 4:5) -->
+          <div class="relative w-full bg-slate-200 rounded-2xl overflow-hidden shadow-inner border-4 border-slate-200 mb-6 touch-none" style="aspect-ratio: 4 / 5;">
+            
+            <!-- Dekorativní levá horní část (logo BO!) -->
+            <div class="absolute top-0 left-0 w-[75%] h-[20%] bg-white flex items-center justify-center border-b-2 border-r-2 border-slate-300/50 z-0 p-3">
+              <img src="https://placehold.co/300x100/00a0e3/ffffff?text=BO!+Reality+%26+Finance" alt="BO! Logo" class="max-h-full max-w-full object-contain opacity-90 rounded">
+            </div>
+            
+            <!-- Naznačení odkládacího políčka vpravo nahoře -->
+            <div class="absolute top-0 right-0 w-[25%] h-[20%] p-1 z-0">
+              <div class="w-full h-full rounded-lg border-2 border-dashed border-slate-400/40 flex flex-col items-center justify-center bg-slate-100/50">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                </svg>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Odložit</span>
+              </div>
+            </div>
+
+            <!-- Samotné kostičky -->
+            @for (tile of tiles(); track tile.id) {
+              <div 
+                class="absolute p-0.5 transition-all duration-200 ease-in-out cursor-pointer"
+                [ngStyle]="getTileStyle(tile.index)"
+                [class.invisible]="tile.isEmpty"
+                [class.z-10]="!tile.isEmpty"
+                (click)="moveTile(tile.index)"
+              >
+                <div 
+                  class="w-full h-full rounded-lg shadow-sm border border-black/10 bg-white"
+                  [style.background-image]="tile.isEmpty ? 'none' : 'url(' + imageUrl() + ')'"
+                  [style.background-size]="'400% 400%'"
+                  [style.background-position]="getBackgroundPosition(tile.id)"
+                ></div>
+              </div>
+            }
+            
+            @if (isSolved() && hasStarted()) {
+              <div class="absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center z-20 animate-in fade-in duration-500 rounded-xl">
+                <h2 class="text-4xl font-black text-emerald-500 mb-2 drop-shadow-sm">Výborně!</h2>
+                <p class="text-lg font-medium text-slate-700 mb-6">Složeno na <span class="font-bold">{{ moves() }}</span> tahů</p>
+                <button 
+                  (click)="backToSelection()"
+                  class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-8 rounded-full transition-transform hover:scale-105 shadow-lg">
+                  Vybrat další obrázek
+                </button>
+              </div>
+            }
+          </div>
+          
+          <div class="mt-2 text-center text-sm text-slate-400">
+            <p>K ovládání můžete použít dotyk, myš nebo šipky na klávesnici.</p>
+          </div>
+        }
       </div>
     </div>
   `
 })
 export class App {
+  gameState = signal<'selection' | 'playing'>('selection');
+  
+  // Dočasné funkční obrázky, než uživatel dodá veřejné odkazy
+  availableImages = [
+    'https://picsum.photos/seed/puzzle1/800/800',
+    'https://picsum.photos/seed/puzzle2/800/800',
+    'https://picsum.photos/seed/puzzle3/800/800',
+    'https://picsum.photos/seed/puzzle4/800/800'
+  ];
+  
+  imageUrl = signal<string>('');
+  
   gridCols = 4;
   gridRows = 5;
   // Validní indexy pro pohyb (3 je odkládací políčko vpravo nahoře, 4-19 je hlavní obrázek 4x4)
   validIndices = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
-  
-  imageUrl = 'https://picsum.photos/seed/puzzle/800/800';
   
   tiles = signal<{id: number, index: number, isEmpty: boolean}[]>([]);
   moves = signal(0);
@@ -117,8 +147,18 @@ export class App {
     return currentTiles.every(tile => tile.isEmpty || tile.index === tile.id + 4);
   });
 
-  constructor() {
+  selectImage(img: string) {
+    this.imageUrl.set(img);
+    this.gameState.set('playing');
     this.initPuzzle();
+    // Automaticky zamíchat po výběru
+    setTimeout(() => {
+      this.shuffle();
+    }, 100);
+  }
+
+  backToSelection() {
+    this.gameState.set('selection');
   }
 
   initPuzzle() {
@@ -143,18 +183,6 @@ export class App {
     this.tiles.set(newTiles);
     this.moves.set(0);
     this.hasStarted.set(false);
-  }
-
-  onImageUpload(event: Event) {
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.imageUrl = e.target?.result as string;
-        this.initPuzzle();
-      };
-      reader.readAsDataURL(file);
-    }
   }
 
   getTileStyle(index: number) {
@@ -248,6 +276,7 @@ export class App {
   }
 
   moveTile(index: number) {
+    if (this.gameState() !== 'playing') return;
     if (this.isSolved() && this.hasStarted()) return;
 
     const currentTiles = [...this.tiles()];
@@ -269,6 +298,7 @@ export class App {
 
   @HostListener('window:keydown', ['$event'])
   handleKeyDown(event: KeyboardEvent) {
+    if (this.gameState() !== 'playing') return;
     if (this.isSolved() && this.hasStarted()) return;
 
     const currentTiles = this.tiles();
