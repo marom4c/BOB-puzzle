@@ -125,14 +125,30 @@ import { CommonModule } from '@angular/common';
             }
             
             @if (isSolved() && hasStarted()) {
-              <div class="absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center z-20 animate-in fade-in duration-500 rounded-xl">
-                <h2 class="text-4xl font-black text-emerald-500 mb-2 drop-shadow-sm">Výborně!</h2>
-                <p class="text-lg font-medium text-slate-700 mb-6">Složeno na <span class="font-bold">{{ moves() }}</span> tahů</p>
-                <button 
-                  (click)="backToSelection()"
-                  class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-8 rounded-full transition-transform hover:scale-105 shadow-lg">
-                  Vybrat další obrázek
-                </button>
+              <div class="absolute inset-0 bg-white/40 backdrop-blur-sm flex flex-col items-center justify-center z-20 animate-in fade-in duration-500 rounded-xl p-4 text-center">
+                <div class="bg-white/80 p-6 rounded-3xl shadow-xl border border-white/50 backdrop-blur-md w-full max-w-[90%]">
+                  <h2 class="text-3xl sm:text-4xl font-black text-emerald-600 mb-2 drop-shadow-sm">BOmba práce!</h2>
+                  <h3 class="text-xl sm:text-2xl font-bold text-slate-800 mb-4">Gratulujeme BOrče!</h3>
+                  <p class="text-lg font-medium text-slate-700 mb-6 inline-block bg-white/60 px-4 py-1.5 rounded-full border border-slate-200">
+                    Složeno na <span class="font-bold text-indigo-600">{{ moves() }}</span> tahů
+                  </p>
+                  
+                  <div class="flex flex-col gap-3 w-full">
+                    <button 
+                      (click)="shareResult()"
+                      class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-2xl transition-transform hover:scale-105 shadow-lg flex items-center justify-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                      </svg>
+                      Pochlubit se
+                    </button>
+                    <button 
+                      (click)="backToSelection()"
+                      class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-6 rounded-2xl transition-transform hover:scale-105 shadow-md">
+                      Vybrat další obrázek
+                    </button>
+                  </div>
+                </div>
               </div>
             }
           </div>
@@ -357,6 +373,75 @@ export class App {
     if (this.validIndices.includes(targetIndex) && this.getNeighbors(emptyIndex).includes(targetIndex)) {
       event.preventDefault();
       this.moveTile(targetIndex);
+    }
+  }
+
+  async shareResult() {
+    try {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      // Nastavíme velikost plátna
+      canvas.width = 800;
+      canvas.height = 800;
+
+      // Načteme aktuální obrázek
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.src = this.imageUrl();
+
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+      });
+
+      // Vykreslíme obrázek na pozadí
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      // Přidáme poloprůhledný překryv, aby byl text čitelný
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Vykreslíme texty
+      ctx.textAlign = 'center';
+      
+      ctx.fillStyle = '#059669'; // emerald-600
+      ctx.font = 'bold 70px sans-serif';
+      ctx.fillText('BOmba práce!', canvas.width / 2, canvas.height / 2 - 60);
+      
+      ctx.fillStyle = '#1e293b'; // slate-800
+      ctx.font = 'bold 50px sans-serif';
+      ctx.fillText('Gratulujeme BOrče!', canvas.width / 2, canvas.height / 2 + 10);
+      
+      ctx.fillStyle = '#4f46e5'; // indigo-600
+      ctx.font = 'bold 40px sans-serif';
+      ctx.fillText(`Složeno na ${this.moves()} tahů`, canvas.width / 2, canvas.height / 2 + 90);
+
+      // Převedeme canvas na soubor a nasdílíme
+      canvas.toBlob(async (blob) => {
+        if (!blob) return;
+        const file = new File([blob], 'bo-puzzle-vysledek.png', { type: 'image/png' });
+        
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            title: 'BO! Puzzle',
+            text: `Složil jsem BO! Puzzle na ${this.moves()} tahů! Zkus to taky.`,
+            files: [file]
+          });
+        } else {
+          // Fallback: Pokud zařízení nepodporuje sdílení souborů (např. starší desktop prohlížeče), stáhneme obrázek
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'bo-puzzle-vysledek.png';
+          a.click();
+          URL.revokeObjectURL(url);
+        }
+      }, 'image/png');
+    } catch (err) {
+      console.error('Chyba při sdílení:', err);
+      alert('Sdílení se nezdařilo. Zkuste to prosím znovu.');
     }
   }
 }
