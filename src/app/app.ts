@@ -65,7 +65,7 @@ import { CommonModule } from '@angular/common';
             
             <!-- Dekorativní levá horní část (logo BO!) -->
             <div class="absolute top-0 left-0 w-[75%] h-[20%] bg-white flex items-center justify-center border-b-2 border-r-2 border-slate-300/50 z-0 p-3">
-              <img src="https://placehold.co/300x100/00a0e3/ffffff?text=BO!+Reality+%26+Finance" alt="BO! Logo" class="max-h-full max-w-full object-contain opacity-90 rounded">
+              <img src="logo.png" alt="BO! Logo" class="max-h-full max-w-full object-contain opacity-90 rounded">
             </div>
             
             <!-- Naznačení odkládacího políčka vpravo nahoře -->
@@ -122,10 +122,10 @@ export class App {
   
   // Dočasné funkční obrázky, než uživatel dodá veřejné odkazy
   availableImages = [
-    'bob1.png',
-    'bob2.png',
-    'bob3.png',
-    'bob4.png'
+    'bob1',
+    'bob2',
+    'bob3',
+    'bob4'
   ];
   
   imageUrl = signal<string>('');
